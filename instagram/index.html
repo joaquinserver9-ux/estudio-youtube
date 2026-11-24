@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex">
+<title>Estudio Instagram</title><link rel="stylesheet" href="../style.css">
+<style>input{width:100%;box-sizing:border-box;padding:8px;font:14px ui-monospace,monospace;background:transparent;color:var(--fg);border:1px solid var(--muted);border-radius:6px}</style>
+</head>
+<body><main>
+<h1 id="title">Conectando con el Estudio…</h1>
+<p id="msg">Esta página devuelve el permiso de Instagram al Estudio que corre en tu computadora.</p>
+<div id="manual" hidden>
+<p>Si el Estudio no lo recibió, copiá esta dirección y pasala en <code>instagram_connect redirect_url=…</code>:</p>
+<input id="url" readonly>
+</div>
+<footer><a href="../privacy.html">Privacy Policy</a></footer>
+</main>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var state = q.get("state") || "";
+  var m = /^(\d{4,5})-[A-Za-z0-9_-]{8,}$/.exec(state);
+  var port = m ? Number(m[1]) : 0;
+  var title = document.getElementById("title");
+  var msg = document.getElementById("msg");
+  document.getElementById("url").value = location.href;
+  document.getElementById("manual").hidden = !(q.get("code") || q.get("error"));
+  if (q.get("error")) {
+    title.textContent = "No se completó la conexión";
+    msg.textContent = q.get("error_description") || q.get("error");
+  }
+  if (!(q.get("code") || q.get("error")) || port < 1024 || port > 65535) {
+    if (!q.get("error")) { title.textContent = "Estudio Instagram"; }
+    return;
+  }
+  // Sólo reenvía al receptor local del Estudio (127.0.0.1); el código no sirve sin el secreto de la app.
+  location.replace("http://127.0.0.1:" + port + "/" + location.search);
+})();
+</script>
+</body></html>
